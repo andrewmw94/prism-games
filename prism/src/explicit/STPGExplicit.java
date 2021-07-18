@@ -37,10 +37,8 @@ import java.util.Set;
 
 import explicit.rewards.MDPRewards;
 import explicit.rewards.STPGRewards;
-import prism.ModelType;
-import prism.PrismException;
-import prism.PrismLog;
-import prism.PrismUtils;
+import parser.VarList;
+import prism.*;
 
 /**
  * Simple explicit-state representation of a (turn-based) stochastic two-player game (STPG).
@@ -165,6 +163,19 @@ public class STPGExplicit extends MDPSimple implements STPG
 	{
 		// Resolve conflict: STPG interface does not (currently) extend MDP  
 		STPG.super.exportToPrismExplicitTra(out);
+	}
+
+	@Override
+	public void exportPlayers(int exportType, VarList varList, PrismLog log) throws PrismException
+	{
+		//Unless it's a stochastic game, we only have player 0.
+		log.println(numStates);
+		for (int i = 0; i < numStates; i++) {
+			if (exportType != Prism.EXPORT_MATLAB)
+				log.println(i + ":" + stateOwners.get(i));
+			else
+				log.println(stateOwners.get(i));
+		}
 	}
 
 	@Override

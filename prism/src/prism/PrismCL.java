@@ -79,6 +79,7 @@ public class PrismCL implements PrismModelListener
 	private boolean exportstaterewards = false;
 	private boolean exporttransrewards = false;
 	private boolean exportstates = false;
+	private boolean exportplayers = false;
 	private boolean exportlabels = false;
 	private boolean exportspy = false;
 	private boolean exportdot = false;
@@ -138,6 +139,7 @@ public class PrismCL implements PrismModelListener
 	private String exportStateRewardsFilename = null;
 	private String exportTransRewardsFilename = null;
 	private String exportStatesFilename = null;
+	private String exportPlayersFilename = null;
 	private String exportLabelsFilename = null;
 	private String exportSpyFilename = null;
 	private String exportDotFilename = null;
@@ -792,6 +794,20 @@ public class PrismCL implements PrismModelListener
 			}
 		}
 
+		// export players at each state
+		if (exportplayers) {
+			try {
+				File f = (exportPlayersFilename.equals("stdout")) ? null : new File(exportPlayersFilename);
+				prism.exportPlayersToFile(exportType, f);
+			}
+			// in case of error, report it and proceed
+			catch (FileNotFoundException e) {
+				error("Couldn't open file \"" + exportPlayersFilename + "\" for output");
+			} catch (PrismException e) {
+				error(e);
+			}
+		}
+
 		// export to spy file
 		if (exportspy) {
 			try {
@@ -1371,6 +1387,10 @@ public class PrismCL implements PrismModelListener
 				else if (sw.equals("ctmc")) {
 					typeOverride = ModelType.CTMC;
 				}
+				// override model type to smg
+				else if (sw.equals("smg")) {
+					typeOverride = ModelType.SMG;
+				}
 
 				// EXPORT OPTIONS:
 
@@ -1467,6 +1487,15 @@ public class PrismCL implements PrismModelListener
 					if (i < args.length - 1) {
 						exportstates = true;
 						exportStatesFilename = args[++i];
+					} else {
+						errorAndExit("No file specified for -" + sw + " switch");
+					}
+				}
+				// export players
+				else if (sw.equals("exportplayers")) {
+					if (i < args.length - 1) {
+						exportplayers = true;
+						exportPlayersFilename = args[++i];
 					} else {
 						errorAndExit("No file specified for -" + sw + " switch");
 					}
@@ -2024,7 +2053,10 @@ public class PrismCL implements PrismModelListener
 			} else if (ext.equals("sta")) {
 				exportstates = true;
 				exportStatesFilename = basename.equals("stdout") ? "stdout" : basename + ".sta";
-			} else if (ext.equals("lab")) {
+			} else if (ext.equals("pla")) {
+				exportplayers = true;
+				exportPlayersFilename = basename.equals("stdout") ? "stdout" : basename + ".pla";
+			}  else if (ext.equals("lab")) {
 				exportlabels = true;
 				exportLabelsFilename = basename.equals("stdout") ? "stdout" : basename + ".lab";
 			} else if (ext.equals("dot")) {
@@ -2280,6 +2312,8 @@ public class PrismCL implements PrismModelListener
 				exportTransRewardsFilename = exportTransRewardsFilename.replaceFirst("modelFileBasename", modelFileBasename);
 			if (exportstates)
 				exportStatesFilename = exportStatesFilename.replaceFirst("modelFileBasename", modelFileBasename);
+			if (exportplayers)
+				exportPlayersFilename = exportPlayersFilename.replaceFirst("modelFileBasename", modelFileBasename);
 			if (exportlabels)
 				exportLabelsFilename = exportLabelsFilename.replaceFirst("modelFileBasename", modelFileBasename);
 			if (exporttransdotstates)
@@ -2461,6 +2495,7 @@ public class PrismCL implements PrismModelListener
 		mainLog.println("-exporttransrewards <file> ..... Export the transition rewards matrix to a file");
 		mainLog.println("-exportrewards <file1> <file2>.. Export state/transition rewards to files 1/2");
 		mainLog.println("-exportstates <file> ........... Export the list of reachable states to a file");
+		mainLog.println("-exportplayers <file> .......... Export the player for each states to a file");
 		mainLog.println("-exportlabels <file> ........... Export the list of labels and satisfying states to a file");
 		mainLog.println("-exportmatlab .................. When exporting matrices/vectors/labels/etc., use Matlab format");
 		mainLog.println("-exportmrmc .................... When exporting matrices/vectors/labels, use MRMC format");

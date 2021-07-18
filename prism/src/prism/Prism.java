@@ -3050,6 +3050,40 @@ public class Prism extends PrismComponent implements PrismSettingsListener
 			tmpLog.close();
 	}
 
+  public void exportPlayersToFile(int exportType, File file) throws FileNotFoundException, PrismException
+  {
+	  PrismLog tmpLog;
+
+	  // No specific states format for MRMC
+	  if (exportType == EXPORT_MRMC)
+		  exportType = EXPORT_PLAIN;
+	  // Rows format does not apply to states output
+	  if (exportType == EXPORT_ROWS)
+		  exportType = EXPORT_PLAIN;
+
+	  // Build model, if necessary
+	  buildModelIfRequired();
+
+	  // Print message
+	  mainLog.print("\nExporting list of players ");
+	  mainLog.print(getStringForExportType(exportType) + " ");
+	  mainLog.println(getDestinationStringForFile(file));
+
+	  // Create new file log or use main log
+	  tmpLog = getPrismLogForFile(file);
+
+	  // Export
+	  if (!getExplicit()) {
+		  currentModel.exportPlayers(exportType, tmpLog);
+	  } else {
+		  currentModelExpl.exportPlayers(exportType, currentModelInfo.createVarList(), tmpLog);
+	  }
+
+	  // Tidy up
+	  if (file != null)
+		  tmpLog.close();
+  }
+
 	/**
 	 * Perform model checking of a property on the currently loaded model and return result.
 	 * Here, the property is passed as a string and parsed first. Usually, you would use the other

@@ -494,6 +494,12 @@ public interface Model {
 	 * Export states list.
 	 */
 	public void exportStates(int exportType, VarList varList, PrismLog log) throws PrismException;
+
+  /**
+	 * Export player at each state (for SMG).
+	 */
+	public void exportPlayers(int exportType, VarList varList, PrismLog log) throws PrismException;
+
 	
 	/**
 	 * Report info/stats about the model as a string.
