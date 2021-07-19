@@ -69,6 +69,7 @@ public class PrismCL implements PrismModelListener
 	private boolean importprismpp = false;
 	private boolean importtrans = false;
 	private boolean importstates = false;
+	private boolean importplayers = false;
 	private boolean importlabels = false;
 	private boolean importstaterewards = false;
 	private boolean importinitdist = false;
@@ -130,6 +131,7 @@ public class PrismCL implements PrismModelListener
 	private String settingsFilename = null;
 	private String modelFilename = null;
 	private String importStatesFilename = null;
+	private String importPlayersFilename = null;
 	private String importLabelsFilename = null;
 	private String importStateRewardsFilename = null;
 	private String importInitDistFilename = null;
@@ -595,7 +597,7 @@ public class PrismCL implements PrismModelListener
 	private void doParsing()
 	{
 		int i;
-		File sf = null, lf = null, srf = null;
+		File sf = null, lf = null, srf = null, plf = null;
 
 		// parse model
 
@@ -618,6 +620,10 @@ public class PrismCL implements PrismModelListener
 					mainLog.print(", \"" + importStatesFilename + "\"");
 					sf = new File(importStatesFilename);
 				}
+				if (importplayers) {
+					mainLog.print(", \"" + importPlayersFilename + "\"");
+					plf = new File(importPlayersFilename);
+				}
 				if (importlabels) {
 					mainLog.print(", \"" + importLabelsFilename + "\"");
 					lf = new File(importLabelsFilename);
@@ -627,7 +633,7 @@ public class PrismCL implements PrismModelListener
 					srf = new File(importStateRewardsFilename);
 				}
 				mainLog.println("...");
-				prism.loadModelFromExplicitFiles(sf, new File(modelFilename), lf, srf, typeOverride);
+				prism.loadModelFromExplicitFiles(sf, new File(modelFilename), lf, srf, plf, typeOverride);
 			} else {
 				mainLog.print("\nParsing model file \"" + modelFilename + "\"...\n");
 				modulesFile = prism.parseModelFile(new File(modelFilename), typeOverride);
@@ -1348,6 +1354,15 @@ public class PrismCL implements PrismModelListener
 						errorAndExit("No file specified for -" + sw + " switch");
 					}
 				}
+				// import states for explicit model import
+				else if (sw.equals("importplayers")) {
+					if (i < args.length - 1) {
+						importplayers = true;
+						importPlayersFilename = args[++i];
+					} else {
+						errorAndExit("No file specified for -" + sw + " switch");
+					}
+				}
 				// import labels for explicit model import
 				else if (sw.equals("importlabels")) {
 					if (i < args.length - 1) {
@@ -1390,6 +1405,10 @@ public class PrismCL implements PrismModelListener
 				// override model type to smg
 				else if (sw.equals("smg")) {
 					typeOverride = ModelType.SMG;
+				}
+				// override model type to smg
+				else if (sw.equals("stpg")) {
+					typeOverride = ModelType.STPG;
 				}
 
 				// EXPORT OPTIONS:
@@ -2479,12 +2498,15 @@ public class PrismCL implements PrismModelListener
 		mainLog.println("-importmodel <files> ........... Import the model directly from text file(s)");
 		mainLog.println("-importtrans <file> ............ Import the transition matrix directly from a text file");
 		mainLog.println("-importstates <file>............ Import the list of states directly from a text file");
+		mainLog.println("-importplayers <file>........... Import the list of players for each state directly from a text file");
 		mainLog.println("-importlabels <file>............ Import the list of labels directly from a text file");
 		mainLog.println("-importstaterewards <file>...... Import the state rewards directly from a text file");
 		mainLog.println("-importinitdist <file>.......... Specify initial probability distribution for transient/steady-state analysis");
 		mainLog.println("-dtmc .......................... Force imported/built model to be a DTMC");
 		mainLog.println("-ctmc .......................... Force imported/built model to be a CTMC");
 		mainLog.println("-mdp ........................... Force imported/built model to be an MDP");
+		mainLog.println("-smg ........................... Force imported/built model to be an SMG");
+		mainLog.println("-stpg .......................... Force imported/built model to be an STPG");
 		mainLog.println();
 		mainLog.println("EXPORT OPTIONS:");
 		mainLog.println("-exportresults <file[:options]>  Export the results of model checking to a file");

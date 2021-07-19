@@ -302,6 +302,7 @@ public class Prism extends PrismComponent implements PrismSettingsListener
 
 	// Info for explicit files load
 	private File explicitFilesStatesFile = null;
+	private File explicitFilesPlayersFile = null;
 	private File explicitFilesTransFile = null;
 	private File explicitFilesLabelsFile = null;
 	private File explicitFilesStateRewardsFile = null;
@@ -2013,9 +2014,10 @@ public class Prism extends PrismComponent implements PrismSettingsListener
 	 * @param transFile File containing the list of transitions (required)
 	 * @param labelsFile File containing label definitions (optional, can be null)
 	 * @param stateRewardsFile File containing state reward definitions (optional, can be null)
+	 * @param playersFile File containing a list players for each state
 	 * @param typeOverride Model type (auto-detected if {@code null})
 	 */
-	public void loadModelFromExplicitFiles(File statesFile, File transFile, File labelsFile, File stateRewardsFile, ModelType typeOverride) throws PrismException
+	public void loadModelFromExplicitFiles(File statesFile, File transFile, File labelsFile, File stateRewardsFile, File playersFile, ModelType typeOverride) throws PrismException
 	{
 		currentModelSource = ModelSource.EXPLICIT_FILES;
 		// Clear any existing built model(s)
@@ -2028,6 +2030,7 @@ public class Prism extends PrismComponent implements PrismSettingsListener
 		currentRewardGenerator = ef2mi.buildRewardInfo(stateRewardsFile);
 		// Store explicit files info for later
 		explicitFilesStatesFile = statesFile;
+		explicitFilesPlayersFile = playersFile;
 		explicitFilesTransFile = transFile;
 		explicitFilesLabelsFile = labelsFile;
 		explicitFilesStateRewardsFile = stateRewardsFile;
@@ -2218,11 +2221,12 @@ public class Prism extends PrismComponent implements PrismSettingsListener
 				break;
 			case EXPLICIT_FILES:
 				if (!getExplicit()) {
+					//TODO: will need to add when we can symoblic SMGs
 					expf2mtbdd = new ExplicitFiles2MTBDD(this);
 					currentModel = expf2mtbdd.build(explicitFilesStatesFile, explicitFilesTransFile, explicitFilesLabelsFile, explicitFilesStateRewardsFile,
 							currentModelInfo, explicitFilesNumStates);
 				} else {
-					currentModelExpl = new ExplicitFiles2Model(this).build(explicitFilesStatesFile, explicitFilesTransFile, explicitFilesLabelsFile, currentModelInfo, explicitFilesNumStates);
+					currentModelExpl = new ExplicitFiles2Model(this).build(explicitFilesStatesFile, explicitFilesTransFile, explicitFilesLabelsFile, explicitFilesPlayersFile, currentModelInfo, explicitFilesNumStates);
 					currentModelGenerator = new ModelModelGenerator(currentModelExpl, currentModelInfo);
 					ExplicitFilesRewardGenerator efrg = new ExplicitFilesRewardGenerator(this, explicitFilesStateRewardsFile, explicitFilesNumStates);
 					efrg.setStatesList(currentModelExpl.getStatesList());

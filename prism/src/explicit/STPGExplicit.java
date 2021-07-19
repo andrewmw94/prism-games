@@ -26,6 +26,10 @@
 
 package explicit;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashSet;
@@ -95,6 +99,14 @@ public class STPGExplicit extends MDPSimple implements STPG
 		stateOwners = new ArrayList<Integer>(stpg.stateOwners);
 	}
 
+	public void instantiateStateOwners() {
+	    int n = getNumStates();
+        stateOwners = new ArrayList<Integer>(n);
+        for(int i = 0; i < n; i++) {
+        	stateOwners.add(1);
+		}
+    }
+
 	// Mutators (for ModelSimple)
 
 	/**
@@ -144,8 +156,13 @@ public class STPGExplicit extends MDPSimple implements STPG
 	 * Set player {@code p} to own state {@code s}. For an STPG, {@code} should be 1 or 2.
 	 * It is not checked whether {@code s} or {@code p} are in the correct range.
 	 */
-	public void setPlayer(int s, int p)
-	{
+	public void setPlayer(int s, int p) throws PrismException {
+		if(p < 1 || p > 2) {
+			throw new PrismException("Player must be 1 or 2 for STPG.");
+		}
+		if(s < 0 || s >= getNumStates()) {
+			throw new PrismException("s must be a valid state in the STPG.");
+		}
 		stateOwners.set(s, p);
 	}
 
